@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Installa dipendenze
-RUN npm ci --only=production
+RUN npm install --omit=dev
 
 # Runtime stage
 FROM node:18-alpine
