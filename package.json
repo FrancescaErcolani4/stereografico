@@ -1,0 +1,25 @@
+{
+  "name": "proiezione-stereografica",
+  "version": "1.0.0",
+  "description": "Visualizzazione interattiva della proiezione stereografica con relazione LaTeX",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "stereographic-projection",
+    "webgl",
+    "mathematics",
+    "3d-visualization"
+  ],
+  "author": "Francesca Ercolani",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {}
+}
