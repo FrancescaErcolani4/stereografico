@@ -402,3 +402,67 @@ canvas:active {
     padding: 16px;
   }
 }
+
+/* ======= Viste separate (WebGL vs GeoGebra) ======= */
+.page-view {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden; /* Evita micro-scroll bizzarri durante il cambio vista */
+}
+
+.hidden {
+  display: none !important;
+}
+
+.top-bar {
+  width: 100%;
+  padding: 14px 18px;
+  background: #f5f7fa;
+  border-bottom: 1px solid #e6e9ef;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box; /* Forza il padding a non espandere i 14px oltre il 100% di larghezza */
+}
+
+.back-button {
+  padding: 8px 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease; /* Un tocco di classe morbido al passaggio del mouse */
+}
+
+.back-button:hover { 
+  background-color: #0056b3; 
+}
+
+/* ==========================================================
+   IL FIX: Gestione del contenitore e dell'iniezione GeoGebra
+   ========================================================== */
+#geogebra-container {
+  width: 100%;
+  height: calc(100vh - 68px); /* Sottrae esattamente l'altezza della tua top-bar */
+  background-color: #ffffff;
+  overflow: hidden; /* Impedisce la comparsa di scrollbar esterne */
+}
+
+/* Questo è il div vuoto esatto che viene "iniettato" da GeoGebra */
+#ggb-element {
+  width: 100%;
+  height: 100%;
+}
+
+/* Manteniamo per sicurezza il selettore dell'applet finale generata a pieno schermo */
+#ggbApplet {
+  width: 100% !important;
+  height: 100% !important;
+}

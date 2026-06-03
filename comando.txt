@@ -1,0 +1,11 @@
+# Aggiunge tutti i file modificati all'area di staging
+git add .
+
+# Crea un commit con un messaggio descrittivo
+git commit -m "Fix: risolti conflitti visualizzazione viste e aggiornato Dockerfile"
+
+# Rinomina il branch corrente in 'main' (fallo solo se nel terminale leggi ancora 'master')
+git branch -m master main
+
+# Invia i dati in modo pulito sul branch main di GitHub
+git push -u origin main --force

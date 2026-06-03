@@ -44,6 +44,9 @@ let params = {
   planeColor: [0.3, 0.3, 0.3],
 };
 
+// ID della richiesta di animazione (per poterla cancellare quando si passa alla vista GeoGebra)
+let rafId = null;
+
 let lightPos = [3.5, 4.0, 3.5];
 let cameraPos = [0.0, 3.5, 5.5];
 let cameraTarget = [0.0, -0.5, 0.0];
@@ -411,7 +414,7 @@ function render() {
     updateStatsDisplay();
   }
 
-  requestAnimationFrame(render);
+  rafId = requestAnimationFrame(render);
 }
 
 // Helper nativo per compilare gli shader senza utility esterne
@@ -498,7 +501,9 @@ function updateStatsDisplay() {
         `;
     document.body.appendChild(statsDiv);
   }
-
+  if (params.showStatistics) {
+    statsDiv.style.display = "block";
+  }
   let content = "STATISTICHE LIVE\n";
   content += "═════════════════\n";
   content += `Sfera (X,Y,Z):\n`;
@@ -602,7 +607,7 @@ function setupControlPanel() {
     rotationValue.textContent = "0.00π";
   });
 
-  // Pulsante chiudi pannello
+  // Pulsanti chiudi pannello
   document
     .getElementById("panel-close-btn")
     .addEventListener("click", function () {
@@ -684,6 +689,96 @@ function setupControlPanel() {
     },
     { passive: false },
   );
+
+  /* =========================================================================
+     CORRETTO: Logica pulsanti Viste Separate con Iniezione Proiezione 3D GeoGebra
+     ========================================================================= */
+  (function setupGeoGebraView() {
+    let ggbAppletInstance = null;
+    const geogebraBtn = document.getElementById("geogebra-btn");
+    const viewGeo = document.getElementById("view-geogebra");
+    const viewWeb = document.getElementById("view-webgl");
+    const backBtn = document.getElementById("btn-back-to-webgl");
+
+    function pauseAnimation() {
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    }
+
+    function resumeAnimation() {
+      if (!rafId) rafId = requestAnimationFrame(render);
+    }
+
+    function openGeo() {
+      if (!viewGeo || !viewWeb) return;
+      viewWeb.classList.add("hidden"); // Nasconde la schermata principale WebGL
+      viewGeo.classList.remove("hidden"); // Mostra la schermata GeoGebra
+      pauseAnimation(); // Ferma WebGL
+
+      // === FIX STATISTICHE VERDI ===
+      // Nasconde il riquadro verde delle statistiche quando siamo su GeoGebra
+      const statsDiv = document.getElementById("stats-display");
+      if (statsDiv) {
+        statsDiv.style.display = "none";
+      }
+      // ==============================
+
+      // Se l'applet non è mai stata iniettata, la creiamo da zero
+      if (!ggbAppletInstance) {
+        const ggbParameters = {
+          id: "ggbApplet",
+          material_id: "vby66mct",
+          width: "100%",
+          height: "100%",
+          showToolBar: false,
+          showMenuBar: false,
+          showAlgebraInput: false,
+          allowStyleBar: false,
+          showResetIcon: true,
+          enableShiftDragZoom: true,
+          enableRightClick: false,
+          useBrowserForJS: true,
+        };
+
+        try {
+          ggbAppletInstance = new GGBApplet(ggbParameters, "5.0");
+          ggbAppletInstance.inject("ggb-element");
+        } catch (err) {
+          console.error("Errore nell'iniezione dell'applet GeoGebra:", err);
+        }
+      } else {
+        if (window.ggbApplet && typeof window.ggbApplet.reinit === "function") {
+          window.ggbApplet.reinit();
+        }
+      }
+    }
+
+    function closeGeo() {
+      if (!viewGeo || !viewWeb) return;
+      viewGeo.classList.add("hidden"); // Nasconde lo schermo intero GeoGebra
+      viewWeb.classList.remove("hidden"); // Ripristina la pagina principale WebGL
+
+      // === FIX STATISTICHE VERDI ===
+      // Se la checkbox delle statistiche nel pannello è attiva, mostra di nuovo il riquadro verde
+      const statsToggle = document.getElementById("stats-toggle");
+      const statsDiv = document.getElementById("stats-display");
+      if (statsDiv && statsToggle && statsToggle.checked) {
+        statsDiv.style.display = "block";
+      }
+      // ==============================
+
+      resumeAnimation(); // Fa ripartire il ciclo di render
+    }
+
+    if (geogebraBtn) {
+      geogebraBtn.addEventListener("click", openGeo);
+    }
+    if (backBtn) {
+      backBtn.addEventListener("click", closeGeo);
+    }
+  })();
 }
 
 function updateCameraFromSpherical() {
@@ -714,6 +809,12 @@ function updateCameraPreset() {
       cameraPos = [4.0, 4.0, 4.0];
       cameraTarget = [0.0, 0.0, 0.0];
       break;
+    
+    // === IL FIX: Se l'utente usa il mouse, non resettare cameraPos ===
+    case "none":
+      break; 
+    // ===============================================================
+
     case "default":
     default:
       cameraPos = [0.0, 3.5, 5.5];
