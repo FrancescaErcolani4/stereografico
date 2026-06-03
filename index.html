@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<title>Dirac Belt Trick - High Quality</title>
+	<link rel="stylesheet" href="style.css" />
+	<!-- GeoGebra API -->
+	<script src="https://www.geogebra.org/apps/deployggb.js"></script>
+</head>
+
+<body>
+	<!-- Overlay Splash Screen -->
+	<div id="attenzione-overlay" class="overlay">
+		<div class="overlay-contenuto">
+			<h2>Progetto esame</h2>
+			<p>Francesca Ercolani, Dipartimento di Matematica UNIBO</p>
+			<p>Calcolo Numerico e Software Didattico, a.a 2025/2026</p>
+			<button class="overlay-btn">Visualizza progetto</button>
+		</div>
+	</div>
+
+	<!-- GeoGebra Modal -->
+	<div id="geogebra-modal" class="geogebra-modal">
+		<div class="geogebra-modal-content">
+			<div class="geogebra-modal-header">
+				<h2>Costruzione Proiezione Stereografica</h2>
+				<button id="geogebra-close-btn" class="geogebra-close-button">&times;</button>
+			</div>
+			<div id="ggbApplet" class="geogebra-container"></div>
+		</div>
+	</div>
+
+	<!-- Pannello di Controllo -->
+	<button id="panel-open-btn" class="panel-open-button" type="button">Comandi</button>
+	<div class="controls-panel" id="control-panel">
+		<div class="panel-header">
+			<button id="panel-close-btn" class="panel-close-button" type="button">Nascondi controlli</button>
+		</div>
+		<p
+			style="background: rgba(100,150,255,0.1); padding: 10px; border-radius: 8px; border-left: 3px solid #64a4ff; font-size: 0.9em;">
+			<br><strong>Controlli Mouse:</strong><br>
+			• Drag (click + muovi): Ruota vista<br>
+			• Rotella: Zoom avanti/indietro<br>
+			• Pulsanti: Preset di visualizzazione</p>
+		<div class="button-group">
+			<h3>Punto di Vista</h3>
+			<div class="button-row">
+				<button class="camera-btn" data-preset="default">Default</button>
+				<button class="camera-btn" data-preset="top">Top</button>
+			</div>
+			<div class="button-row">
+				<button class="camera-btn" data-preset="side">Side</button>
+				<button class="camera-btn" data-preset="front">Front</button>
+			</div>
+			<div class="button-row">
+				<button class="camera-btn" data-preset="isometric">Isometrica</button>
+			</div>
+		</div>
+
+		<div class="button-group">
+			<h3>Visualizzazione</h3>
+			<label class="checkbox-label">
+				<input type="checkbox" id="lighting-toggle" checked>
+				<span>Illuminazione</span>
+			</label>
+			<label class="checkbox-label">
+				<input type="checkbox" id="shadow-toggle" checked>
+				<span>Piano di proiezione</span>
+			</label>
+			<label class="checkbox-label">
+				<input type="checkbox" id="marker-toggle" checked>
+				<span>Marker (punto)</span>
+			</label>
+			<label class="checkbox-label">
+				<input type="checkbox" id="stats-toggle" checked>
+				<span>Statistiche</span>
+			</label>
+		</div>
+
+		<div class="button-group">
+			<h3>Luminosità</h3>
+			<div class="slider-group">
+				<label for="intensity-slider">Intensita luce:</label>
+				<input id="intensity-slider" type="range" min="0" max="2" step="0.1" value="1">
+				<span id="intensity-value">1.0</span>
+			</div>
+		</div>
+
+		<div class="button-group">
+			<h3>Zoom</h3>
+			<div class="slider-group">
+				<label for="zoom-slider">Distanza fotocamera:</label>
+				<input id="zoom-slider" type="range" min="1.5" max="15" step="0.5" value="6">
+				<span id="zoom-value">6.0</span>
+			</div>
+		</div>
+
+		<div class="button-group">
+			<h3>Animazione</h3>
+			<div class="button-row">
+				<button id="play-btn" type="button">Play</button>
+				<button id="pause-btn" type="button">Pausa</button>
+				<button id="reset-btn" type="button">Reset</button>
+			</div>
+		</div>
+
+		<div class="button-group">
+			<h3>Rotazione Asticella</h3>
+			<div class="slider-group">
+				<label for="rotation-slider">Angolo rotazione:</label>
+				<input id="rotation-slider" type="range" min="0" max="6.28" step="0.01" value="0">
+				<span id="rotation-value">0.00</span>
+			</div>
+		</div>
+
+		<div class="button-group">
+			<h3>Relazione LaTeX</h3>
+			<p style="font-size: 0.85em; line-height: 1.4;">
+				Documentazione completa della proiezione stereografica con analisi geometrica, aspetti storici e implementazione didattica.
+			</p>
+			<a href="plot.pdf" target="_blank" class="pdf-button" style="display: inline-block; background: linear-gradient(135deg, #ff6b6b, #ff8787); padding: 10px 15px; border-radius: 6px; text-decoration: none; color: white; font-weight: bold; text-align: center; margin-top: 8px; border: 2px solid #ff5252; transition: all 0.3s;">
+				📄 Scarica PDF
+			</a>
+		</div>
+
+		<div class="button-group">
+			<h3>Informazioni</h3>
+			<p style="font-size: 0.9em; line-height: 1.6;">
+				<strong>Proiezione Stereografica:</strong><br>
+				Trasforma punti sulla sfera in punti su un piano, preservando gli angoli.
+			</p>
+			<p style="font-size: 0.85em; color: #b8d7ff; font-family: monospace; margin: 10px 0;">t = 2R / (R - y)</p>
+			<button id="geogebra-btn" class="geogebra-button" type="button">Visualizza Costruzione GeoGebra</button>
+		</div>
+	</div>
+	<canvas id="gl-canvas">
+		Il tuo browser non supporta HTML5 Canvas.
+	</canvas>
+
+	<script src="m4.js"></script>
+
+	<script id="vertex-shader" type="x-shader/vertex">
+    attribute vec4 vPosition;
+    attribute vec4 vColor;
+    attribute vec3 vNormal;
+    
+    varying vec4 fColor;
+    varying vec3 fNormal;
+    varying vec3 fFragPos;
+    
+    uniform mat4 u_matrix;
+    uniform mat4 u_normalMatrix;
+    uniform mat4 u_viewMatrix;
+
+    void main() {
+        gl_Position = u_matrix * vPosition;
+        fFragPos = (u_viewMatrix * vPosition).xyz;
+        fNormal = normalize((u_normalMatrix * vec4(vNormal, 0.0)).xyz);
+        fColor = vColor;
+    }
+</script>
+
+	<script id="fragment-shader" type="x-shader/fragment">
+    precision mediump float;
+    varying vec4 fColor;
+    varying vec3 fNormal;
+    varying vec3 fFragPos;
+    
+    uniform bool u_useLighting;
+    uniform vec3 u_lightPos;
+    uniform vec3 u_viewPos;
+    uniform vec3 u_lightColor;
+
+    void main() {
+        if (u_useLighting) {
+            vec3 norm = normalize(fNormal);
+            vec3 lightDir = normalize(u_lightPos - fFragPos);
+            float diff = max(dot(norm, lightDir), 0.0);
+            
+            vec3 ambient = 0.3 * u_lightColor;
+            vec3 diffuse = diff * u_lightColor;
+            
+            vec3 viewDir = normalize(u_viewPos - fFragPos);
+            vec3 reflectDir = reflect(-lightDir, norm);
+            float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
+            vec3 specular = 0.5 * spec * u_lightColor;
+            
+            vec3 result = (ambient + diffuse + specular) * fColor.rgb;
+            gl_FragColor = vec4(result, fColor.a);
+        } else {
+            gl_FragColor = fColor;
+        }
+    }
+</script>
+	<script src="main.js"></script>
+
+</body>
+
+</html>

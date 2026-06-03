@@ -1,0 +1,242 @@
+\documentclass[11pt,fleqn]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english,italian]{babel} 
+\usepackage{tikz}
+\usepackage{tikz-3dplot} 
+% Matematica
+\usepackage{amsmath,amssymb,amsfonts,mathtools,mathrsfs}
+% Grafica e immagini
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{xcolor}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18} 
+\usepackage{tcolorbox}
+\usepackage{listings}
+\usepackage{hyperref}
+
+% SINTASSI MACRO SFERA CORRETTA: #1=theta, #2=phi, #3=scala, #4=etichetta piano, #5=titolo vista, #6=label figura
+\newcommand{\sfera}[6]{%
+    \tdplotsetmaincoords{#1}{#2}% 
+    \begin{tikzpicture}[tdplot_main_coords, scale=#3, >=stealth]
+        \def\R{1.2}
+
+        % Piano z = -R proiettato in 3D
+        \fill[gray!10, opacity=0.7] (-2,-2,-\R) -- (2,-2,-\R) -- (2,2,-\R) -- (-2,2,-\R) -- cycle;
+        \draw[gray!50, dashed] (-2,-2,-\R) grid[step=0.5] (2,2,-\R);
+        \draw[black!60, thick] (-2,-2,-\R) -- (2,-2,-\R) -- (2,2,-\R) -- (-2,2,-\R) -- cycle;
+        \node[anchor=south west, font=\small] at (1.6,-1.8,-\R) {#4};
+
+        % Asse z inferiore
+        \draw[->,dashed] (0,0,-\R) -- (0,0,-1.8) node[anchor=north]{$z$};
+
+        % SFERA 3D (Fissata sullo schermo)
+        \begin{scope}[tdplot_screen_coords]
+            \shadedraw[ball color=blue!15, opacity=0.25, draw=blue!50, thick] (0,0) circle (\R);
+        \end{scope}
+
+        % Equatore 3D
+        \draw[blue!40, dashed, thick] (\R,0,0) arc (0:180:\R);
+        \draw[blue!70, thick] (\R,0,0) arc (0:-180:\R);
+
+        % Punti nello spazio 3D
+        \coordinate (O) at (0,0,0);
+        \coordinate (N) at (0,0,\R);
+        \coordinate (P) at ({0.7*\R},{0.5*\R},{0.51*\R}); 
+        \coordinate (Pprime) at ({1.5*0.7*\R},{1.5*0.5*\R},-\R);
+
+        % Rette di proiezione
+        \draw[red, thick] (N) -- (P);
+        \draw[red, thick, dashed] (P) -- (Pprime);
+
+        % Nodi
+        \filldraw[black] (N) circle (0.6pt) node[anchor=south, font=\small] {$N$};
+        \filldraw[black] (P) circle (0.6pt) node[anchor=south west, font=\small] {$P$};
+        \filldraw[red] (Pprime) circle (0.8pt) node[anchor=north west, font=\small] {$P'$};
+        \filldraw[gray] (O) circle (0.5pt) node[anchor=east, font=\small] {$O$};
+    \end{tikzpicture}%
+    \captionof{figure}{#5}\label{#6}
+}
+
+\begin{document}
+
+% Configurazione dello stile per la visualizzazione del codice 
+\lstset{
+    language=[LaTeX]TeX,
+    basicstyle={\ttfamily\small},
+    keywordstyle={\color{blue!80!black}\bfseries},
+    commentstyle={\color{green!50!black}\itshape},
+    stringstyle={\color{orange}},
+    backgroundcolor={\color{gray!5}},
+    frame=single,
+    rulecolor={\color{gray!30}},
+    breaklines=true,
+    showstringspaces=false,
+    extendedchars=true,
+    literate={~}{{\raisebox{0.5ex}{\texttildelow}}}{1}
+}
+
+\title{\textbf{La Proiezione Stereografica:\\Cenni Storici, Geometria e Aspetti Didattici}}
+\author{}
+\date{}
+\maketitle
+
+\section*{Inquadramento Storico}
+
+Oggi la proiezione stereografica è un argomento di grande interesse in diversi campi della matematica, dalla topologia alla geometria differenziale, fino all'analisi complessa. Ma se bisogna considerare le sue origini, esse risalgono a un contesto storico molto più antico e pratico, legato all'astronomia e alla cartografia. 
+
+Nell'antica Grecia, la necessità di rappresentare la volta celeste su strumenti piani portò alla nascita di questa branca pratica della geometria, che permetteva agli astronomi di mappare le stelle e i pianeti senza dover affrontare la complessità della trigonometria sferica. Ipparco di Nicea, uno dei più grandi astronomi dell'antichità (150-110 a.C.), viene accreditato come il primo a utilizzare la proiezione stereografica per calcolare le posizioni degli astri. Successivamente, Claudio Tolomeo (II secolo d.C.) formalizzò l'uso matematico di questa proiezione nel suo trattato \textit{Planisphaerium}, descrivendo il metodo per mappare la sfera celeste sul piano equatoriale.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\textwidth]{astrolabio} 
+    \caption{Foto di un astrolabio dei primi del 1900.}
+    \label{fig:astrolabio}
+\end{figure}
+
+Questa intuizione geometrica costituì la base scientifica per lo sviluppo dell'astrolabio (Figura \ref{fig:astrolabio}), uno strumento di navigazione che ha dominato l'astronomia occidentale e islamica per oltre un millennio. Il termine \textit{stereografica} (dal greco \textit{stereos}, solido, e \textit{graphia}, descrizione) venne coniato solo nel 1613 dal matematico gesuita \textbf{François d'Aguilon} (1561-1617) nel suo trattato \textit{Opticorum libri sex}. Nel XIX secolo, grazie ai lavori di Bernhard Riemann (1826-1866) e Ludwig Schläfli (1814-1895), la proiezione perse la sua veste esclusivamente pratica per diventare un pilastro della moderna geometria proiettiva e della teoria delle funzioni di variabile complessa.
+
+
+\section*{Aspetti Geometrici e Formalizzazione}
+
+La proiezione stereografica è una mappa conforme che mette in corrispondenza biunivoca i punti di una sfera privata del polo di proiezione con i punti di un piano affine. Consideriamo una sfera di raggio $R$ centrata nell'origine e proiettiamo dal Polo Nord $N=(0,0,R)$ sul piano affine tangente al Polo Sud ($\pi: z=-R$).
+
+Dato un punto sulla sfera $P(x,y,z)$, le coordinate del punto proiettato $P'(X,Y,-R)$ sul piano si ricavano imponendo la collinearità tra i punti $N$, $P$ e $P'$. Il sistema parametrico della retta passante per $N$ e $P$ è dato da:
+\begin{equation}
+\begin{cases}
+X = t \cdot x \\
+Y = t \cdot y \\
+Z = R + t(z - R)
+\end{cases}
+\end{equation}
+Imponendo la condizione di intersezione con il piano di proiezione $Z = -R$, si ricava il fattore di scala numerico $t$:
+\begin{equation}
+-R = R + t(z - R) \implies t = \frac{2R}{R - z}
+\end{equation}
+
+\section*{Proprietà Geometriche e Approfondimenti Didattici}
+
+La proiezione stereografica permette di esplorare proprietà geometriche profonde attraverso strumenti analitici standard, rendendola un ottimo argomento di raccordo curricolare.
+
+\subsection*{1. La Conservazione degli Angoli (Mappa Conforme)}
+Una delle proprietà più rilevanti della proiezione stereografica è la sua \textbf{conformità}: essa preserva gli angoli tra curve. Se due curve sulla superficie della sfera si intersecano formando un angolo $\alpha$, le loro proiezioni sul piano $\pi$ si intersecheranno formando esattamente lo stesso angolo $\alpha$.
+Questa proprietà la rende insostituibile nella cartografia (dove le bussole devono mantenere la direzione fedele, come nella proiezione di Mercatore) e nello studio delle mappe olomorfe.
+
+\subsection*{2. La Gestione delle Circonferenze}
+Un'altra proprietà cruciale riguarda la corrispondenza delle curve sul piano:
+\begin{itemize}
+    \item Ogni \textbf{circonferenza} sulla sfera che non passa per il centro di proiezione $N$ viene mappata in una \textbf{circonferenza} sul piano $\pi$.
+    \item Ogni circonferenza sulla sfera che \textbf{passa} per il polo di proiezione $N$ viene trasformata in una \textbf{retta} sul piano $\pi$.
+\end{itemize}
+Dal punto di vista proiettivo, una retta sul piano non è altro che una circonferenza di raggio infinito passante per il punto all'infinito.
+
+\subsection*{3. Il Compattamento di Aleksandrov e la Sfera di Riemann}
+In ambito topologico, la proiezione offre la visualizzazione geometrica della \textbf{compattificazione a un punto} del piano reale $\mathbb{R}^2$. 
+Mentre tutti i punti della sfera trovano un corrispettivo sul piano, il Polo Nord $N$ non si proietta in alcun punto finito. Tuttavia, se sul piano ci si allontana indefinitamente in qualsiasi direzione, l'immagine sulla sfera converge proprio verso il Polo Nord. Nel contesto dell'analisi complessa, questo permette di definire il piano complesso esteso $\mathbb{C}^* = \mathbb{C} \cup \{\infty\}$, modellizzato visivamente dalla \textbf{Sfera di Riemann}:
+$$\mathbb{S}^2 \cong \mathbb{C} \cup \{\infty\}$$
+
+\clearpage
+
+\subsection*{Metodo 1: Rappresentazione con TikZ Puro (2D)}
+In questo primo approccio, la prospettiva è simulata geometricamente schiacciando l'asse verticale dell'ellisse equatoriale.
+
+\begin{center}
+\begin{tikzpicture}[scale=2.5, >=stealth]
+    \def\R{1.2}
+    \fill[gray!10, opacity=0.6] (-1.8,-1.5) -- (2.2,-1.5) -- (1.4,-0.5) -- (-2.6,-0.5) -- cycle;
+    \draw[black!60, thick] (-1.8,-1.5) -- (2.2,-1.5) -- (1.4,-0.5) -- (-2.6,-0.5) -- cycle;
+    \node[anchor=south west, font=\small] at (1.5,-1.5) {Piano $\pi: z=-R$};
+
+    \draw[->, dashed, black!60] (0,-1.2) -- (0,-1.8) node[anchor=north] {$z$};
+    \draw[dashed, black!40] (0,0) -- (0,-1.2);
+
+    \shadedraw[ball color=blue!15, opacity=0.25, draw=blue!60, thick] (0,0) circle (\R);
+
+    \draw[blue!40, dashed, thick] (\R,0) arc (0:180:{\R} and 0.35); 
+    \draw[blue!70, thick] (\R,0) arc (0:-180:{\R} and 0.35); 
+
+    \coordinate (O) at (0,0);
+    \coordinate (N) at (0,\R);                        
+    \coordinate (P) at (0.6,0.3);                      
+    \coordinate (Pprime) at (1.1,-1.0);                
+
+    \draw[red, thick] (N) -- (P);
+    \draw[red, thick, dashed] (P) -- (Pprime);
+    \draw[gray!40, dashed] (0,0) -- (0.6,0.3); 
+
+    \filldraw[black] (N) circle (0.6pt) node[anchor=south, font=\small] {$N$};
+    \filldraw[black] (P) circle (0.6pt) node[anchor=south west, font=\small] {$P$};
+    \filldraw[red] (Pprime) circle (0.8pt) node[anchor=north west, font=\small] {$P'$};
+    \filldraw[gray] (O) circle (0.5pt) node[anchor=east, font=\small] {$O$};
+\end{tikzpicture}
+\end{center}
+
+\subsection*{Metodo 2: Rappresentazione con \texttt{tikz-3dplot} (3D)}
+
+\begin{figure}[htbp]
+    \centering
+    \sfera{70}{110}{2.0}{Piano $\pi: z = -R$}{Vista Assonometrica Standard}{fig:assonometrica}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{minipage}[t]{0.45\textwidth}
+        \centering
+        \sfera{90}{0}{1.5}{$\pi$}{Vista Laterale ($\theta = 90^\circ$, $\phi = 0^\circ$)}{fig:laterale}
+    \end{minipage}% 
+    \hfill
+    \begin{minipage}[t]{0.45\textwidth}
+        \centering
+        \sfera{0}{0}{1.5}{$\pi$}{Vista Zenitale ($\theta = 0^\circ$, $\phi = 0^\circ$)}{fig:zenitale}
+    \end{minipage}
+\end{figure}
+
+\clearpage
+
+\section*{Appendice: Codici Sorgenti TikZ}
+
+\subsection*{Sorgente Metodo 1: TikZ Puro (2D)}
+\begin{lstlisting}
+\begin{tikzpicture}[scale=2.5, >=stealth]
+    \def\R{1.2}
+    \fill[gray!10, opacity=0.6] (-1.8,-1.5) -- (2.2,-1.5) -- (1.4,-0.5) -- (-2.6,-0.5) -- cycle;
+    \draw[black!60, thick] (-1.8,-1.5) -- (2.2,-1.5) -- (1.4,-0.5) -- (-2.6,-0.5) -- cycle;
+    \shadedraw[ball color=blue!15, opacity=0.25, draw=blue!60, thick] (0,0) circle (\R);
+    \draw[blue!40, dashed, thick] (\R,0) arc (0:180:{\R} and 0.35); 
+    \draw[blue!70, thick] (\R,0) arc (0:-180:{\R} and 0.35); 
+\end{tikzpicture}
+\end{lstlisting}
+
+\subsection*{Sorgente Metodo 2: Macro Dinamica Estesa}
+\begin{lstlisting}
+\newcommand{\sfera}[6]{%
+    \tdplotsetmaincoords{#1}{#2}%
+    \begin{tikzpicture}[tdplot_main_coords, scale=#3, >=stealth]
+        \def\R{1.2}
+        \fill[gray!10, opacity=0.7] (-2,-2,-\R) -- (2,-2,-\R) -- (2,2,-\R) -- (-2,2,-\R) -- cycle;
+        \draw[gray!50, dashed] (-2,-2,-\R) grid[step=0.5] (2,2,-\R);
+        \draw[black!60, thick] (-2,-2,-\R) -- (2,-2,-\R) -- (2,2,-\R) -- (-2,2,-\R) -- cycle;
+        \node[anchor=south west, font=\small] at (1.6,-1.8,-\R) {#4};
+        \draw[->,dashed] (0,0,-\R) -- (0,0,-1.8) node[anchor=north]{$z$};
+        \begin{scope}[tdplot_screen_coords]
+            \shadedraw[ball color=blue!15, opacity=0.25, draw=blue!50, thick] (0,0) circle (\R);
+        \end{scope}
+        \draw[blue!40, dashed, thick] (\R,0,0) arc (0:180:\R);
+        \draw[blue!70, thick] (\R,0,0) arc (0:-180:\R);
+        % ... coordinate e rette di proiezione ...
+    \end{tikzpicture}%
+    \captionof{figure}{#5}\label{#6}
+}
+\end{lstlisting}
+
+\clearpage
+
+\begin{thebibliography}{9}
+\bibitem{tolomeo} C. Tolomeo, \textit{Planisphaerium}, II secolo d.C.
+\bibitem{aguilon} F. d'Aguilon, \textit{Opticorum libri sex}, 1613.
+\bibitem{riemann} B. Riemann, \textit{Grundlagen für eine allgemeine Theorie...}, 1851.
+\bibitem{needham} T. Needham, \textit{Visual Complex Analysis}, 1997.
+\bibitem{coxeter} H. S. M. Coxeter, \textit{Introduction to Geometry}, 2003.
+\end{thebibliography}
+
+\end{document}
