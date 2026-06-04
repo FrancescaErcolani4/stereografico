@@ -694,7 +694,7 @@ function setupControlPanel() {
      CORRETTO: Logica pulsanti Viste Separate con Iniezione Proiezione 3D GeoGebra
      ========================================================================= */
   (function setupGeoGebraView() {
-    let ggbAppletInstance = null;
+    let ggbIframeInjected = false;
     const geogebraBtn = document.getElementById("geogebra-btn");
     const viewGeo = document.getElementById("view-geogebra");
     const viewWeb = document.getElementById("view-webgl");
@@ -725,32 +725,17 @@ function setupControlPanel() {
       }
       // ==============================
 
-      // Se l'applet non è mai stata iniettata, la creiamo da zero
-      if (!ggbAppletInstance) {
-        const ggbParameters = {
-          id: "ggbApplet",
-          material_id: "vby66mct",
-          width: "100%",
-          height: "100%",
-          showToolBar: false,
-          showMenuBar: false,
-          showAlgebraInput: false,
-          allowStyleBar: false,
-          showResetIcon: true,
-          enableShiftDragZoom: true,
-          enableRightClick: false,
-          useBrowserForJS: true,
-        };
-
-        try {
-          ggbAppletInstance = new GGBApplet(ggbParameters, "5.0");
-          ggbAppletInstance.inject("ggb-element");
-        } catch (err) {
-          console.error("Errore nell'iniezione dell'applet GeoGebra:", err);
-        }
-      } else {
-        if (window.ggbApplet && typeof window.ggbApplet.reinit === "function") {
-          window.ggbApplet.reinit();
+      if (!ggbIframeInjected) {
+        const ggbElement = document.getElementById("ggb-element");
+        if (ggbElement) {
+          ggbElement.innerHTML = "";
+          const iframe = document.createElement("iframe");
+          iframe.src = "https://www.geogebra.org/material/iframe/id/ng4yaapq/width/800/height/600/ai/false/smb/false/stb/false/b/false/v/false/asb/false/sri/true/rc/false";
+          iframe.className = "geogebra-iframe";
+          iframe.allowFullscreen = true;
+          iframe.loading = "lazy";
+          ggbElement.appendChild(iframe);
+          ggbIframeInjected = true;
         }
       }
     }
@@ -809,10 +794,10 @@ function updateCameraPreset() {
       cameraPos = [4.0, 4.0, 4.0];
       cameraTarget = [0.0, 0.0, 0.0];
       break;
-    
-    // === IL FIX: Se l'utente usa il mouse, non resettare cameraPos ===
+
+    // === Se l'utente usa il mouse, non resettare cameraPos ===
     case "none":
-      break; 
+      break;
     // ===============================================================
 
     case "default":

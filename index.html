@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width,initial-scale=1" />
-	<title>Dirac Belt Trick - High Quality</title>
+	<title>Proiezione stenografica</title>
 	<link rel="stylesheet" href="style.css" />
 	<!-- GeoGebra API -->
 	<script src="https://www.geogebra.org/apps/deployggb.js"></script>
@@ -28,8 +28,7 @@
 			<div class="panel-header">
 				<button id="panel-close-btn" class="panel-close-button" type="button">Nascondi controlli</button>
 			</div>
-			<p
-				style="background: rgba(100,150,255,0.1); padding: 10px; border-radius: 8px; border-left: 3px solid #64a4ff; font-size: 0.9em;">
+			<p class="info-box">
 				<br><strong>Controlli Mouse:</strong><br>
 				• Drag (click + muovi): Ruota vista<br>
 				• Rotella: Zoom avanti/indietro<br>
@@ -108,24 +107,22 @@
 
 			<div class="button-group">
 				<h3>Relazione LaTeX</h3>
-				<p style="font-size: 0.85em; line-height: 1.4;">
+				<p class="info-text">
 					Documentazione completa della proiezione stereografica con analisi geometrica, aspetti storici e
 					implementazione didattica.
 				</p>
-				<a href="plot.pdf" target="_blank" class="pdf-button"
-					style="display: inline-block; background: linear-gradient(135deg, #ff6b6b, #ff8787); padding: 10px 15px; border-radius: 6px; text-decoration: none; color: white; font-weight: bold; text-align: center; margin-top: 8px; border: 2px solid #ff5252; transition: all 0.3s;">
-					📄 Scarica PDF
+				<a href="plot.pdf" target="_blank" class="pdf-button">
+					&#128196; Scarica PDF
 				</a>
 			</div>
 
 			<div class="button-group">
 				<h3>Informazioni</h3>
-				<p style="font-size: 0.9em; line-height: 1.6;">
+				<p class="info-text">
 					<strong>Proiezione Stereografica:</strong><br>
 					Trasforma punti sulla sfera in punti su un piano, preservando gli angoli.
 				</p>
-				<p style="font-size: 0.85em; color: #b8d7ff; font-family: monospace; margin: 10px 0;">t = 2R / (R - y)
-				</p>
+				<p class="info-note">t = 2R / (R - y)</p>
 				<button id="geogebra-btn" class="geogebra-button" type="button">Visualizza Costruzione GeoGebra</button>
 			</div>
 		</div>
@@ -137,7 +134,7 @@
 	<div id="view-geogebra" class="page-view hidden">
 		<div class="top-bar">
 			<button id="btn-back-to-webgl" class="back-button">← Torna all'Animazione 3D</button>
-			<h2 style="margin-left:16px; color:#001;">Costruzione Proiezione Stereografica</h2>
+			<h2>Costruzione Proiezione Stereografica</h2>
 		</div>
 		<div id="geogebra-container">
 			<div id="ggb-element"></div>
