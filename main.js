@@ -51,7 +51,7 @@ let lightPos = [3.5, 4.0, 3.5];
 let cameraPos = [0.0, 3.5, 5.5];
 let cameraTarget = [0.0, -0.5, 0.0];
 
-// Controllo camera con mouse (coordinate sferiche)
+// Controllo camera con mouse e touch (coordinate sferiche)
 let cameraDistance = 6.0;
 let minCameraDistance = 1.5;
 let maxCameraDistance = 15.0;
@@ -60,7 +60,13 @@ let cameraElevation = Math.asin(3.5 / cameraDistance); // Angolo di elevazione
 let isDragging = false;
 let lastMouseX = 0,
   lastMouseY = 0;
-const MOUSE_SENSITIVITY = 0.005; // Sensibilità del mouse
+let isTouchDragging = false;
+let lastTouchX = 0,
+  lastTouchY = 0;
+let lastTouchDistance = 0;
+const MOUSE_SENSITIVITY = 0.005; // Sensibilità mouse
+const TOUCH_SENSITIVITY = 0.006; // Sensibilità drag touch
+const PINCH_SENSITIVITY = 0.012; // Sensibilità pinch zoom
 
 // Statistiche
 let stats = {
@@ -689,6 +695,88 @@ function setupControlPanel() {
     },
     { passive: false },
   );
+
+  function getDistanceBetweenTouches(touchA, touchB) {
+    const dx = touchA.clientX - touchB.clientX;
+    const dy = touchA.clientY - touchB.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  canvas.addEventListener(
+    "touchstart",
+    function (e) {
+      e.preventDefault();
+      params.cameraPreset = "none";
+
+      if (e.touches.length === 1) {
+        isTouchDragging = true;
+        lastTouchX = e.touches[0].clientX;
+        lastTouchY = e.touches[0].clientY;
+      } else if (e.touches.length === 2) {
+        isTouchDragging = false;
+        lastTouchDistance = getDistanceBetweenTouches(e.touches[0], e.touches[1]);
+      }
+    },
+    { passive: false },
+  );
+
+  canvas.addEventListener(
+    "touchmove",
+    function (e) {
+      e.preventDefault();
+
+      if (e.touches.length === 1) {
+        const touch = e.touches[0];
+        const deltaX = touch.clientX - lastTouchX;
+        const deltaY = touch.clientY - lastTouchY;
+
+        cameraAzimuth -= deltaX * TOUCH_SENSITIVITY;
+        cameraElevation += deltaY * TOUCH_SENSITIVITY;
+
+        const maxElev = Math.PI / 2.2;
+        cameraElevation = Math.max(-maxElev, Math.min(maxElev, cameraElevation));
+
+        updateCameraFromSpherical();
+        lastTouchX = touch.clientX;
+        lastTouchY = touch.clientY;
+      } else if (e.touches.length === 2) {
+        const distance = getDistanceBetweenTouches(e.touches[0], e.touches[1]);
+        const delta = distance - lastTouchDistance;
+        if (delta !== 0) {
+          const zoomFactor = 1 - delta * PINCH_SENSITIVITY;
+          cameraDistance = Math.max(
+            minCameraDistance,
+            Math.min(maxCameraDistance, cameraDistance * zoomFactor),
+          );
+          const zoomSliderElement = document.getElementById("zoom-slider");
+          const zoomValueElement = document.getElementById("zoom-value");
+          if (zoomSliderElement) {
+            zoomSliderElement.value = cameraDistance.toFixed(1);
+          }
+          if (zoomValueElement) {
+            zoomValueElement.textContent = cameraDistance.toFixed(1);
+          }
+          updateCameraFromSpherical();
+        }
+        lastTouchDistance = distance;
+      }
+    },
+    { passive: false },
+  );
+
+  canvas.addEventListener("touchend", function (e) {
+    if (e.touches.length === 0) {
+      isTouchDragging = false;
+    } else if (e.touches.length === 1) {
+      isTouchDragging = true;
+      lastTouchX = e.touches[0].clientX;
+      lastTouchY = e.touches[0].clientY;
+    }
+  });
+
+  canvas.addEventListener("touchcancel", function () {
+    isTouchDragging = false;
+  });
 
   /* =========================================================================
      CORRETTO: Logica pulsanti Viste Separate con Iniezione Proiezione 3D GeoGebra
